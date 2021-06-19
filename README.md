@@ -24,17 +24,17 @@ Keep an encyclopedia of all successfully grown foods (shows progress until compl
   - Enter/Return - advance time by one day
   - Backspace/Delete - reset farm (must advance time to apply reset)
 
-  > #### Tile States:
-  > - Soil (light brown)
-  > - Tilled (light brown with circle of dark brown)
-  > - Planted (light brown with growing plant over it)
-  > - Watered (dark brown with growing plant over it)
+    > #### Tile States:
+    > - Soil (light brown)
+    > - Tilled (light brown with circle of dark brown)
+    > - Planted (light brown with growing plant over it)
+    > - Watered (dark brown with growing plant over it)
 
-  > #### Result of Interacting with Tiles:
-  > - Soil -> Tilled
-  > - Tilled + Growable -> Planted
-  > - Planted + Watering Can -> Watered
-  > - Planted (ready to harvest) -> Soil
+    > #### Result of Interacting with Tiles:
+    > - Soil -> Tilled
+    > - Tilled + Growable -> Planted
+    > - Planted + Watering Can -> Watered
+    > - Planted (ready to harvest) -> Soil
 
   
   #### Disclaimer:
