@@ -1,0 +1,18 @@
+{
+  "ids": [
+    "lettuce",
+    "tomato",
+    "salad"
+  ],
+  "items": {
+    "lettuce": { "name": "Lettuce", "growthTime": 2, "spoilTime": 2 },
+    "tomato": { "name": "Tomato", "growthTime": 3, "spoilTime": 2 },
+    "salad": { "name": "Salad", "growthTime": 4, "spoilTime": 3 }
+  },
+  "recipes": {
+    "salad": [
+      "lettuce",
+      "tomato"
+    ]
+  }
+}

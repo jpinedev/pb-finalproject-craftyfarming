@@ -8,7 +8,7 @@ Unlock access to new seeds (ingredient checkpoints), to make longer recipies eas
 
 Goal: Make all of the food items in the game.
 
-## Crafty Farmer
+## Crafty Farmer: Psuedocode
 - Growable
   - Time until ready
   - Time until spoiled
