@@ -11,10 +11,15 @@ HashMap<String, Recipe> recipeLibrary;
 
 // 5x5 Tile Farm (aka "Game Board")
 FarmTile[][] farm;
+ArrayList<Growable> availableSeeds;
+int activeSeed;
+
+// Drawing Variables
+PGraphics farmRender;
+PFont uiFont;
 
 void setup() {
-  size(400, 400);
-  noLoop();
+  size(400, 500);
 
   JSONObject jsonData = loadJSONObject("data.JSON");
   loadData(jsonData);
@@ -28,34 +33,59 @@ void setup() {
     farmData = loadJSONArray("farmDefault.JSON");
   }
   loadFarm(farmData);
+  
+  availableSeeds = new ArrayList<Growable>();
+  for (String id : ids) {
+    // TODO: Limit starting seeds... maybe tie in with save data?
+    availableSeeds.add(itemDictionary.get(id));
+  }
+  activeSeed = 0;
+
+  farmRender = createGraphics(400, 400);
+  drawFarm();
+  
+  uiFont = createFont("Monospaced", 32);
+  textFont(uiFont); 
 }
 
 void draw() {
   background(0);
+  
+  image(farmRender, 0, 0);
+  
+  text(availableSeeds.get(activeSeed).itemName, width / 2, 450);
+}
+
+void drawFarm() {
+  farmRender.beginDraw();
 
   // Draw all tiles in farm
   int jj = 0;
   for (FarmTile[] row : farm) {
     int ii = 0;
     for (FarmTile tile : row) {
-      tile.draw(ii, jj);
+      tile.draw(farmRender, ii, jj);
       ++ii;
     }
     ++jj;
   }
+  
+  farmRender.endDraw();
 }
 
 void mouseReleased() {
   if (mouseX < 0 || mouseX > width || mouseY < 0 || mouseY > height) return;
 
-  // Map mouse position to tile position
-  int ii = floor(map(mouseX, 0, width, 0, 5));
-  int jj = floor(map(mouseY, 0, height, 0, 5));
-  
-  println(ii, jj);
-  
-  farm[jj][ii].nextState(itemDictionary.get("lettuce"));
-  redraw();
+  if (mouseX < farmRender.height) {
+    // Map mouse position to tile position
+    final int ii = floor(map(mouseX, 0, farmRender.width, 0, GRID_SIZE));
+    final int jj = floor(map(mouseY, 0, farmRender.height, 0, GRID_SIZE));
+    
+    farm[jj][ii].nextState(availableSeeds.get(activeSeed));
+    drawFarm();
+  } else {
+    // TODO: Handle UI click events
+  }
 }
 
 void keyReleased() {
@@ -68,12 +98,23 @@ void keyReleased() {
     }
 
     saveFarm();
-    redraw();
+    drawFarm();
   } else if (keyCode == BACKSPACE || keyCode == DELETE) {
     // Clear farm of all plants (reset game)
     resetFarm();
-    redraw();
+    drawFarm();
+  } else if (keyCode == LEFT) {
+    prevSeed();
+  } else if (keyCode == RIGHT) {
+    nextSeed();
   }
+}
+
+void prevSeed() {
+  if (--activeSeed < 0) activeSeed = availableSeeds.size() - 1;
+}
+void nextSeed() {
+  if (++activeSeed >= availableSeeds.size()) activeSeed = 0;
 }
 
 // Load Farm from JSON Save Data

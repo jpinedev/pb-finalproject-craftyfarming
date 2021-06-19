@@ -25,37 +25,33 @@ class FarmTile {
     return this.item.savePlant();
   }
   
-  public void draw(int ii, int jj) {
-    push();
-
-    noStroke();
-    ellipseMode(CORNER);
+  public void draw(PGraphics pg, int ii, int jj) {
+    pg.noStroke();
+    pg.ellipseMode(CORNER);
 
     // Draw farmland depending on state
     switch (this.state) {
       case Tilled:
-        fill(#6b5640);
-        rect(ii * GRID_SCALE, jj * GRID_SCALE, GRID_SCALE, GRID_SCALE);
-        fill(#402b14);
-        ellipse(ii * GRID_SCALE, jj * GRID_SCALE, GRID_SCALE, GRID_SCALE);
+        pg.fill(#6b5640);
+        pg.rect(ii * GRID_SCALE, jj * GRID_SCALE, GRID_SCALE, GRID_SCALE);
+        pg.fill(#402b14);
+        pg.ellipse(ii * GRID_SCALE, jj * GRID_SCALE, GRID_SCALE, GRID_SCALE);
         break;
       case Watered:
-        fill(#402b14);
-        rect(ii * GRID_SCALE, jj * GRID_SCALE, GRID_SCALE, GRID_SCALE);
+        pg.fill(#402b14);
+        pg.rect(ii * GRID_SCALE, jj * GRID_SCALE, GRID_SCALE, GRID_SCALE);
         break;
 
       case Planted:
       case Soil:
       default:
-        fill(#6b5640);
-        rect(ii * GRID_SCALE, jj * GRID_SCALE, GRID_SCALE, GRID_SCALE);
+        pg.fill(#6b5640);
+        pg.rect(ii * GRID_SCALE, jj * GRID_SCALE, GRID_SCALE, GRID_SCALE);
     }
 
     if (this.state == FarmlandState.Planted || this.state == FarmlandState.Watered) {
-      this.item.draw(ii, jj);
+      this.item.draw(pg, ii, jj);
     }
-
-    pop();
   }
   
   // Set contained planted item

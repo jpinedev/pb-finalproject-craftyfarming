@@ -19,7 +19,8 @@ Keep an encyclopedia of all successfully grown foods (shows progress until compl
 > Some controls and features listed below are not yet implemented.
 
 #### Controls:
-- Select active tool/item using mouse or numkeys
+- Select active tool using mouse
+- Select seed to plant with left and right arrow keys
 - Click on a tile to interact (see *[Result of Interacting with Tiles](#result-of-interacting-with-tiles)* for details)
 - Click and Drag plants onto each other to craft
 - Enter/Return - advance time by one day
@@ -43,7 +44,7 @@ Keep an encyclopedia of all successfully grown foods (shows progress until compl
 
 ## Roadmap:
 #### HIGH PRIORITY
-- [ ] Choose what growable to Plant
+- [x] Choose what growable to Plant
 - [ ] Craft new growables by dragging one plant onto another
 - [ ] Ability to compost spoiled Plants
 - [ ] Harvest Plants
@@ -53,7 +54,7 @@ Keep an encyclopedia of all successfully grown foods (shows progress until compl
 - [ ] Keep an encyclopedia (with UI) of all successfully grown Growables (shows progress until completion)
 #### low priority
 - [ ] Plants have grace period before starting to spoil
-- [ ] Plant visuals overhau
+- [ ] Plant visuals overhaul
 #### *extras*
 - [ ] Title Screen
 - [ ] Multi-plant recipes

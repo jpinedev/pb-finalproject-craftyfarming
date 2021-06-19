@@ -3,8 +3,8 @@ import java.util.Map;
 // Structure for a Growable Item
 class Growable {
   // Item Information
-  protected String itemId;
-  protected String itemName;
+  public final String itemId;
+  public final String itemName;
 
   // Item Stats
   protected final int growthTime;

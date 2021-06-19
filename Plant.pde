@@ -19,7 +19,7 @@ final class Plant extends Growable {
     super(_item);
 
     this.growthStage = (_growthStage > this.growthTime ? this.growthTime : _growthStage);
-    this.spoilStage = (_spoilStage > this.growthTime ? this.growthTime : _growthStage);
+    this.spoilStage = (_spoilStage > this.spoilTime ? this.spoilTime : _spoilStage);
   }
 
   Plant(Growable _item) {
@@ -49,7 +49,7 @@ final class Plant extends Growable {
     if (spoil) this.spoilUp();
     else {
       if (this.growthStage < this.growthTime) this.growUp();
-      else if (this.spoilStage < this.spoilTime) this.spoilUp();
+      else this.spoilUp();
     }
   }
 
@@ -60,17 +60,17 @@ final class Plant extends Growable {
 
   // Spoil plant by one day
   public void spoilUp() {
-    ++this.spoilStage;
+    if (this.spoilStage < this.spoilTime) ++this.spoilStage;
   }
   
-  public void draw(int ii, int jj) {
+  public void draw(PGraphics pg, int ii, int jj) {
     // Determine height of rect based on plant age
     float growthPerc = (float) this.growthStage / (float) this.growthTime;
     float h = growthPerc * GRID_SCALE;
     float offset = GRID_SCALE - h;
 
     // Determine fill color based on plant spoil state
-    if (this.isBad()) fill(this.SPOILED);
+    if (this.isBad()) pg.fill(this.SPOILED);
     else if (this.spoilStage > 0) {
       float spoiledPerc = (float) this.spoilStage / (float) this.spoilTime;
       
@@ -78,14 +78,14 @@ final class Plant extends Growable {
       float g = map(spoiledPerc, 0, 1, green(this.SPROUTING), green(this.SPOILED));
       float b = map(spoiledPerc, 0, 1, blue(this.SPROUTING), blue(this.SPOILED));
       
-      fill(r, g, b);
+      pg.fill(r, g, b);
     }
-    else fill(this.SPROUTING);
+    else pg.fill(this.SPROUTING);
     
-    rect(ii * GRID_SCALE, jj * GRID_SCALE + offset, GRID_SCALE, h);
+    pg.rect(ii * GRID_SCALE, jj * GRID_SCALE + offset, GRID_SCALE, h);
 
-    fill(#ffffff);
-    text(this.itemName, (ii + 0.5f) * GRID_SCALE, jj * GRID_SCALE + offset);
+    pg.fill(#ffffff);
+    pg.text(this.itemName, (ii + 0.5f) * GRID_SCALE, jj * GRID_SCALE + offset);
   }
 }
 
@@ -94,6 +94,6 @@ Plant loadPlant(JSONObject plantData) {
 
   String growableKey = plantData.getString("growable");
   Growable _growable = itemDictionary.get(growableKey);
-
+  
   return new Plant(_growable, plantData.getInt("growthStage"), plantData.getInt("spoilStage"));
 }
