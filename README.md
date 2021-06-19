@@ -43,17 +43,17 @@ Keep an encyclopedia of all successfully grown foods (shows progress until compl
 
 ## Roadmap:
 #### HIGH PRIORITY
-- Choose what growable to Plant *
-- Craft new growables by dragging one plant onto another *
-- Ability to compost spoiled Plants *
-- Harvest Plants *
+- [] Choose what growable to Plant *
+- [] Craft new growables by dragging one plant onto another *
+- [] Ability to compost spoiled Plants *
+- [] Harvest Plants *
 #### medium priority
-- Unlock access new seeds *
-- Tool selecting (watering can; compost) *
-- Keep an encyclopedia (with UI) of all successfully grown Growables (shows progress until completion) *\
+- [] Unlock access new seeds *
+- [] Tool selecting (watering can; compost) *
+- [] Keep an encyclopedia (with UI) of all successfully grown Growables (shows progress until completion) *
 #### low priority
-- Plants have grace period before starting to spoil
-- Plant visuals overhau
+- [] Plants have grace period before starting to spoil
+- [] Plant visuals overhau
 #### *extras*
-- Title Screen
-- Multi-plant recipes
+- [] Title Screen
+- [] Multi-plant recipes
