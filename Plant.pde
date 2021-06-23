@@ -7,13 +7,6 @@ final class Plant extends Growable {
   // Plant age/decay information
   private int growthStage;
   private int spoilStage;
-  
-  Plant(String _itemId, String _itemName, int _growthTime, int _spoilTime, int _growthStage, int _spoilStage) {
-    super(_itemId, _itemName, _growthTime, _spoilTime);
-
-    this.growthStage = _growthStage;
-    this.spoilStage = _spoilStage;
-  }
 
   Plant(Growable _item, int _growthStage, int _spoilStage) {
     super(_item);
@@ -63,15 +56,33 @@ final class Plant extends Growable {
     if (this.spoilStage < this.spoilTime) ++this.spoilStage;
   }
   
+  public float getAvgGrowthStage(Plant _plant) {
+    float numer = this.growthStage + _plant.growthStage;
+    return numer / 2f;
+  }
+  public float getAvgSpoilStage(Plant _plant) {
+    float numer = this.spoilStage + _plant.spoilStage;
+    return numer / 2f;
+  }
+  
+  public String getName() {
+    return (this.isBad() ? "Spoiled\n" : "") + this.itemName;
+  }
+  
   public void draw(PGraphics pg, int ii, int jj) {
     // Determine height of rect based on plant age
     float growthPerc = (float) this.growthStage / (float) this.growthTime;
     float h = growthPerc * GRID_SCALE;
-    float offset = GRID_SCALE - h;
+    float rectOffset = GRID_SCALE - h;
+    float textOffset = rectOffset;
 
     // Determine fill color based on plant spoil state
-    if (this.isBad()) pg.fill(this.SPOILED);
-    else if (this.spoilStage > 0) {
+    if (this.isBad()) {
+      pg.fill(this.SPOILED);
+      h = GRID_SCALE;
+      rectOffset = GRID_SCALE - h;
+      textOffset = rectOffset + 16;
+    } else if (this.spoilStage > 0) {
       float spoiledPerc = (float) this.spoilStage / (float) this.spoilTime;
       
       float r = map(spoiledPerc, 0, 1, red(this.SPROUTING), red(this.SPOILED));
@@ -82,10 +93,10 @@ final class Plant extends Growable {
     }
     else pg.fill(this.SPROUTING);
     
-    pg.rect(ii * GRID_SCALE, jj * GRID_SCALE + offset, GRID_SCALE, h);
+    pg.rect(ii * GRID_SCALE, jj * GRID_SCALE + rectOffset, GRID_SCALE, h);
 
     pg.fill(#ffffff);
-    pg.text(this.itemName, (ii + 0.5f) * GRID_SCALE, jj * GRID_SCALE + offset);
+    pg.text(this.getName(), (ii + 0.5f) * GRID_SCALE, jj * GRID_SCALE + textOffset);
   }
 }
 

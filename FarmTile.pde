@@ -7,16 +7,21 @@ enum FarmlandState {
 
 // A container for a growable item to be planted 
 class FarmTile {
+  // Array Positional information
+  public final int index;
+
   // Tile state information
   private FarmlandState state;
   private Plant item;
   
-  private FarmTile(Plant _item) {
+  private FarmTile(int _index, Plant _item) {
+    this.index = _index;
+
     this.setPlant(_item);
   }
 
-  public FarmTile() {
-    this(null);
+  public FarmTile(int _index) {
+    this(_index, null);
   }
 
   // Export Tile as JSON
@@ -59,8 +64,31 @@ class FarmTile {
     this.state = (null == plant ? FarmlandState.Soil : FarmlandState.Planted);
     this.item = plant;
   }
+
+  public boolean hasPlant() {
+    return this.state == FarmlandState.Planted || this.state == FarmlandState.Watered;
+  }
+  public boolean hasBadPlant() {
+    return this.hasPlant() && this.item.isBad();
+  }
+
+  public boolean isTilled() {
+    return this.state == FarmlandState.Tilled;
+  }
+
+  public Plant transplant() {
+    Plant temp = this.item;
+    this.item = null;
+    
+    this.state = FarmlandState.Tilled;
+    
+    return temp;
+  }
   
-  // TODO: harvest
+  public HashSet<String> getSharedRecipes(String itemId) {
+    if (!this.hasPlant()) return new HashSet<String>();
+    return findRecipes(this.item.itemId, itemId);
+  }
   
   // Advance age of contained plant by one day
   public void ageUp() {
@@ -71,7 +99,7 @@ class FarmTile {
   }
   
   // Determine what effect the player had on the tile based on the current state
-  public void nextState(Growable g) {
+  public void nextState(Growable g, boolean wateringCan) {
     switch (this.state) {
       case Soil:
         this.state = FarmlandState.Tilled;
@@ -80,18 +108,23 @@ class FarmTile {
         this.setPlant(new Plant(g));
         break;
       case Planted:
+        // Only water plants while watering can is equipped
+        if (wateringCan) this.waterPlant();
+        break;
       case Watered:
-        this.state = FarmlandState.Watered;
         break;
       default:
         this.state = FarmlandState.Soil;
-
     }
+  }
+
+  public void waterPlant() {
+    if (this.hasPlant()) this.state = FarmlandState.Watered;
   }
 }
 
 // Create FarmTile from JSON data
-FarmTile loadFarmTile(JSONObject tileData) {
+FarmTile loadFarmTile(JSONObject tileData, int index) {
   Plant _item = loadPlant(tileData);
-  return new FarmTile(_item);
+  return new FarmTile(index, _item);
 }

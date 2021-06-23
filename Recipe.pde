@@ -1,12 +1,16 @@
 // Recipe for creating new growable items
 class Recipe {
   public final String PRODUCT;
+  
+  private HashSet<String> ingredients;
 
-  private String[] ingredients;
-
-  Recipe(String id, String[] ingredients) {
+  Recipe(String id, ArrayList<String> _ingredients) {
     this.PRODUCT = id;
-    this.ingredients = ingredients;
+    this.ingredients = new HashSet<String>(_ingredients);
+  }
+
+  boolean needsIngredient(String id) {
+    return this.ingredients.contains(id);
   }
 }
 
@@ -24,15 +28,24 @@ void loadRecipes(JSONObject recipes) {
       );
     }
 
-    /* Code snippet from https://www.geeksforgeeks.org/arraylist-array-conversion-java-toarray-methods/ :
-        Integer[] arr = new Integer[al.size()];
-        arr = al.toArray(arr);
-    */
-    String[] arr = new String[ingredients.size()];
-    arr = ingredients.toArray(arr);
-
-    Recipe recipe = new Recipe(id, arr);
+    Recipe recipe = new Recipe(id, ingredients);
 
     recipeLibrary.put(id, recipe);
   }
+}
+
+HashSet<String> findRecipes(String... _ingredients) {
+  HashSet<String> recipes = new HashSet<String>();
+  
+  for (Recipe recipe : recipeLibrary.values()) {
+    boolean containsAll = true;
+    
+    for (int index = 0; index < _ingredients.length && containsAll; ++index)
+      if (!recipe.needsIngredient(_ingredients[index]))
+        containsAll = false;
+    
+    if (containsAll) recipes.add(recipe.PRODUCT);
+  }
+  
+  return recipes;
 }

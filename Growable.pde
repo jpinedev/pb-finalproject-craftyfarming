@@ -20,6 +20,15 @@ class Growable {
   protected Growable(Growable _item) {
     this(_item.itemId, _item.itemName, _item.growthTime, _item.spoilTime);
   }
+  
+  public float getAvgGrowthTime(Growable _growable) {
+    float numer = this.growthTime + _growable.growthTime;
+    return numer / 2f;
+  }
+  public float getAvgSpoilTime(Growable _growable) {
+    float numer = this.spoilTime + _growable.spoilTime;
+    return numer / 2f;
+  }
 
 }
 
