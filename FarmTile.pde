@@ -1,3 +1,6 @@
+/**
+ * Represents the current state of a farmland tile.
+ */
 enum FarmlandState {
   Soil,
   Tilled,
@@ -5,8 +8,11 @@ enum FarmlandState {
   Watered
 };
 
-// A container for a growable item to be planted 
+/**
+ * A container for planting and growing items.
+ */
 class FarmTile {
+
   // Array Positional information
   public final int index;
 
@@ -14,22 +20,54 @@ class FarmTile {
   private FarmlandState state;
   private Plant item;
   
+  /**
+   * Create a farm tile for planting.
+   * 
+   * @param _index in flattened array 
+   * @param _item to be planted (if any)
+   */
   private FarmTile(int _index, Plant _item) {
     this.index = _index;
 
     this.setPlant(_item);
   }
 
+  /**
+   * Create a farm tile for planting.
+   * 
+   * @param _index in flattened array 
+   */
   public FarmTile(int _index) {
     this(_index, null);
   }
+  
+  /**
+   * Create a farm tile from JSON data
+   * 
+   * @param tileData as JSON data
+   * @param _index in flattened array 
+   */
+  public FarmTile(JSONObject tileData, int _index) {
+    this(_index, loadPlant(tileData));
+  }
 
-  // Export Tile as JSON
+  /**
+   * Format tile for export as JSON data.
+   * 
+   * @return contained plant data
+   */
   public JSONObject saveTile() {
     if (null == this.item) return null;
     return this.item.savePlant();
   }
   
+  /**
+   * Draw farm tile at corresponding position on the given graphics object.
+   * 
+   * @param pg graphic to be drawn on
+   * @param ii column in grid
+   * @param jj row in grid
+   */
   public void draw(PGraphics pg, int ii, int jj) {
     pg.noStroke();
     pg.ellipseMode(CORNER);
@@ -59,23 +97,53 @@ class FarmTile {
     }
   }
   
-  // Set contained planted item
+  /**
+   * Set contained planted item.
+   * 
+   * @param plant to be planted
+   */
   public void setPlant(Plant plant) {
     this.state = (null == plant ? FarmlandState.Soil : FarmlandState.Planted);
     this.item = plant;
   }
 
-  public boolean hasPlant() {
-    return this.state == FarmlandState.Planted || this.state == FarmlandState.Watered;
+  /**
+   * { @return tile is tilled... }
+   */
+  public boolean isTilled() {
+    return this.state == FarmlandState.Tilled;
   }
+  /**
+   * { @return tile is watered... }
+   */
+  public boolean isWatered() {
+    return this.state == FarmlandState.Watered;
+  }
+
+  /**
+   * { @return tile has a plant... }
+   */
+  public boolean hasPlant() {
+    return this.state == FarmlandState.Planted || this.isWatered();
+  }
+  /**
+   * { @return tile has a ripe plant... }
+   */
+  public boolean hasRipePlant() {
+    return this.hasPlant() && this.item.isReady();
+  }
+  /**
+   * { @return tile has a spoiled plant... }
+   */
   public boolean hasBadPlant() {
     return this.hasPlant() && this.item.isBad();
   }
 
-  public boolean isTilled() {
-    return this.state == FarmlandState.Tilled;
-  }
-
+  /**
+   * Remove the contained plant from the tile.
+   * 
+   * @return removed plant
+   */
   public Plant transplant() {
     Plant temp = this.item;
     this.item = null;
@@ -85,12 +153,19 @@ class FarmTile {
     return temp;
   }
   
+  /**
+   * Get all recipies that the contained and given item share.
+   * 
+   * @param itemId item to be indexed
+   */
   public HashSet<String> getSharedRecipes(String itemId) {
     if (!this.hasPlant()) return new HashSet<String>();
     return findRecipes(this.item.itemId, itemId);
   }
   
-  // Advance age of contained plant by one day
+  /**
+   * Advance the state of the tile and any contained item.
+   */
   public void ageUp() {
     if (null != this.item) this.item.ageUp(this.state == FarmlandState.Planted);
 
@@ -98,7 +173,12 @@ class FarmTile {
     else if (this.state == FarmlandState.Watered) this.state = FarmlandState.Planted;
   }
   
-  // Determine what effect the player had on the tile based on the current state
+  /**
+   * Determine what effect the player had on the tile based on the current state.
+   * 
+   * @param g growable to be planted (if possible)
+   * @param wateringCan if the watering can is currently equipped
+   */
   public void nextState(Growable g, boolean wateringCan) {
     switch (this.state) {
       case Soil:
@@ -118,13 +198,10 @@ class FarmTile {
     }
   }
 
+  /**
+   * Water the tile for any contained plant.
+   */
   public void waterPlant() {
     if (this.hasPlant()) this.state = FarmlandState.Watered;
   }
-}
-
-// Create FarmTile from JSON data
-FarmTile loadFarmTile(JSONObject tileData, int index) {
-  Plant _item = loadPlant(tileData);
-  return new FarmTile(index, _item);
 }

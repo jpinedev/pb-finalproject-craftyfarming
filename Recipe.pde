@@ -1,24 +1,40 @@
-// Recipe for creating new growable items
+/**
+ * Recipe for combining items to create new growable items.
+ */
 class Recipe {
   public final String PRODUCT;
   
   private HashSet<String> ingredients;
 
-  Recipe(String id, ArrayList<String> _ingredients) {
+  /**
+   * Create a crafting recipe.
+   */
+  private Recipe(String id, ArrayList<String> _ingredients) {
     this.PRODUCT = id;
     this.ingredients = new HashSet<String>(_ingredients);
   }
 
+  /**
+   * Recipe requires given ingredient.
+   * 
+   * @param id itemId of the ingredient
+   * 
+   * @return recipe requires ingredient
+   */
   boolean needsIngredient(String id) {
     return this.ingredients.contains(id);
   }
 }
 
-// Load Recipes from JSON data
-void loadRecipes(JSONObject recipes) {
+/**
+ * Load Recipes from JSON data and populate recipe book.
+ * 
+ * @param recipesData json object to be mapped
+ */
+void loadRecipes(JSONObject recipesData) {
   for (String id : ids) {
-    if (recipes.isNull(id)) continue;
-    JSONArray recipeData = recipes.getJSONArray(id);
+    if (recipesData.isNull(id)) continue;
+    JSONArray recipeData = recipesData.getJSONArray(id);
 
     ArrayList<String> ingredients = new ArrayList<String>();
 
@@ -30,14 +46,21 @@ void loadRecipes(JSONObject recipes) {
 
     Recipe recipe = new Recipe(id, ingredients);
 
-    recipeLibrary.put(id, recipe);
+    recipeBook.put(id, recipe);
   }
 }
 
+/**
+ * Find recipes that contain all the given ingredients.
+ * 
+ * @param _ingredients in potential recipes
+ * 
+ * @return recipes that contain all ingredients
+ */
 HashSet<String> findRecipes(String... _ingredients) {
   HashSet<String> recipes = new HashSet<String>();
   
-  for (Recipe recipe : recipeLibrary.values()) {
+  for (Recipe recipe : recipeBook.values()) {
     boolean containsAll = true;
     
     for (int index = 0; index < _ingredients.length && containsAll; ++index)
