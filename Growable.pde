@@ -1,9 +1,7 @@
-import java.util.Map;
-
 /**
  * Structure for a Growable Item.
  */
-class Growable {
+class Growable implements Comparable<Growable> {
   // Item Information
   public final String itemId;
   public final String itemName;
@@ -57,6 +55,21 @@ class Growable {
   public float getAvgSpoilTime(Growable _growable) {
     float numer = this.spoilTime + _growable.spoilTime;
     return numer / 2f;
+  }
+
+  boolean equals(Object o) {
+    if (o == this) return true;
+    if (!(o instanceof Growable)) return false;
+    Growable other = (Growable) o;
+
+    return this.itemId.equals(other.itemId);
+  }
+  int hashCode() {
+    return this.itemId.hashCode();
+  }
+
+  int compareTo(Growable other) {
+    return this.itemName.compareTo(other.itemName);
   }
 
 }

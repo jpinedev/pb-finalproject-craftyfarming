@@ -1,18 +1,25 @@
-import java.util.HashSet;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.Map;
+import java.util.List;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Arrays;
+import g4p_controls.*;
 
 // Farm Grid Settings
 final int GRID_SIZE = 5;
 final int GRID_SCALE = 80;
 
 // Global Resources
-HashSet<String> ids;
+SortedSet<String> ids;
 HashMap<String, Growable> itemDictionary;
 HashMap<String, Recipe> recipeBook;
 
 // Game State
 FarmGame farmGame;
-ArrayList<Growable> availableSeeds; // Plantable items
+List<Growable> availableSeeds; // Plantable items
+SortedSet<String> grownPlants;
 
 // User Interaction
 int activeSeed;
@@ -25,17 +32,24 @@ PFont uiFont;
 PShape compost;
 PShape wateringCan;
 
+// Plantpedia UI
+GPanel pediaPanel;
+GPanel seedListSidebar;
+GLabel seedListLabel;
+GToggleGroup seedListGroup;
+ArrayList<GOption> seedList;
+GPanel selectedSeedPanel;
+GLabel selectedSeedGrowth;
+GLabel selectedSeedSpoil;
+GCheckbox selectedSeedIsBase;
+GPanel selectedSeedRecipe;
+GLabel selectedSeedRecipeItems;
+
 void setup() {
   size(400, 500);
 
   JSONObject jsonData = loadJSONObject("data.JSON");
   loadData(jsonData);
-
-  availableSeeds = new ArrayList<Growable>();
-  for (String id : ids) {
-    // TODO: Limit starting seeds... maybe tie in with save data?
-    availableSeeds.add(itemDictionary.get(id));
-  }
 
   uiFont = createFont("Monospaced", 32);
   textFont(uiFont);
@@ -50,6 +64,8 @@ void setup() {
   wateringCan = loadShape("watering-can.svg");
   wateringCan.disableStyle();
   wateringCan.scale(1.5);
+
+  initPlantpedia();
 }
 
 void draw() {
@@ -76,8 +92,11 @@ void draw() {
 
   // - Seeds Background
   push();
-  stroke(#007700);
-  noFill();
+  if (overSeedSelector() && !pediaPanel.isVisible()) {
+    fill(#00ff00);
+  } else {
+    fill(#007700);
+  }
   rect(190, 410, width - 200, 80, 10);
   pop();
 
@@ -99,17 +118,35 @@ void draw() {
 
   pop();
 
-  farmGame.hoverOverFarm();
+  if (isGameOver()) {
+    push();
+    textAlign(CENTER, CENTER);
+    textSize(24);
+    rectMode(CENTER);
+    int boxWidth = (int)textWidth("Congradulations!\nYou have harvested\nevery type of plant!") + GRID_SCALE;
+    int boxHeight = 24 * 6;
+
+    fill(#007700);
+    noStroke();
+    rect(width / 2, farmGame.height / 2 + 6, boxWidth, boxHeight, GRID_SCALE / 2);
+
+    fill(#ffffff);
+    text("Congradulations!\nYou have harvested\nevery type of plant!", width / 2, farmGame.height / 2);
+    pop();
+  }
+  else if (!pediaPanel.isVisible()) farmGame.hoverOverFarm();
 }
 
 void mousePressed() {
-  if (mouseX < 0 || mouseX > width || mouseY < 0 || mouseY > height) return;
+  if (isGameOver() || mouseX < 0 || mouseX > width || mouseY < 0 || mouseY > height) return;
 
-  if (mouseButton == LEFT) farmGame.mousePressed();
+  if (mouseButton == LEFT) {
+    if (!pediaPanel.isVisible()) farmGame.mousePressed();
+  }
 }
 
 void mouseReleased() {
-  if (mouseButton != LEFT) return;
+  if (isGameOver() || mouseButton != LEFT) return;
   
   boolean wasDragged = farmGame.isDraggingItem();
   boolean lmbWasDown = lmbDown;
@@ -126,7 +163,7 @@ void mouseReleased() {
   
   if (mouseY < farmGame.height) {
     // Mouse is over the Farm
-    farmGame.mouseReleased(wasDragged, lmbWasDown);
+    if (!pediaPanel.isVisible()) farmGame.mouseReleased(wasDragged, lmbWasDown);
 
     farmGame.endDrag();
   } else {
@@ -137,7 +174,9 @@ void mouseReleased() {
 
     } else if (!lmbWasDown) {
       // Clicked on UI
-      if (hasWateringCan) hasWateringCan = false;
+      if (pediaPanel.isVisible()) pediaPanel.setVisible(false);
+      else if (overSeedSelector()) openPediaPanel();
+      else if (hasWateringCan) hasWateringCan = false;
       else if (overWateringCan()) hasWateringCan = true;
     }
   }
@@ -146,25 +185,46 @@ void mouseReleased() {
 }
 
 void mouseDragged() {
+  if (isGameOver()) return;
   lmbDown = true;
 
-  farmGame.mouseDragged();
+  if (!pediaPanel.isVisible()) farmGame.mouseDragged();
 }
 
 void keyReleased() {
-  if (keyCode == ENTER || keyCode == RETURN) {
-    farmGame.nextDay();
-
-    saveGame();
-    farmGame.drawFarm();
+  if (!isGameOver()) {
+    if (keyCode == ENTER || keyCode == RETURN) {
+      farmGame.nextDay();
+  
+      saveGame();
+      farmGame.drawFarm();
+    } else if (keyCode == LEFT) {
+      prevSeed();
+    } else if (keyCode == RIGHT) {
+      nextSeed();
+    }
   } else if (keyCode == BACKSPACE || keyCode == DELETE) {
     // Clear farm of all plants (reset game)
     resetSave();
-  } else if (keyCode == LEFT) {
-    prevSeed();
-  } else if (keyCode == RIGHT) {
-    nextSeed();
   }
+}
+
+void harvestPlant(Growable g) {
+  grownPlants.add(g.itemId);
+
+  if (!availableSeeds.contains(g)) {
+    availableSeeds.add(g);
+    Collections.sort(availableSeeds);
+
+    activeSeed = availableSeeds.indexOf(g);
+  }
+}
+
+/**
+ * { @return is game over...}
+ */
+boolean isGameOver() {
+  return grownPlants.size() == ids.size();
 }
 
 void prevSeed() {
@@ -180,7 +240,7 @@ void nextSeed() {
 void loadData(JSONObject data) {
   // Load IDs for all growable items
   JSONArray idsData = data.getJSONArray("ids");
-  ids = new HashSet<String>();
+  ids = new TreeSet<String>();
   for (int ii = 0; ii < idsData.size(); ++ii) {
     ids.add(idsData.getString(ii));
   }
@@ -201,6 +261,8 @@ void loadData(JSONObject data) {
  */
 void loadSave() {
   JSONObject saveData;
+  JSONArray unlockedSeeds;
+  JSONArray grownData;
   JSONArray farmData;
   
   // Load default when no prior save is found
@@ -210,8 +272,17 @@ void loadSave() {
     saveData = loadJSONObject("saveDefault.JSON");
   }
 
-  farmData = saveData.getJSONArray("farm");
+  unlockedSeeds = saveData.getJSONArray("seeds");
+  loadSeeds(unlockedSeeds);
 
+  grownData = saveData.getJSONArray("grown");
+  grownPlants = new TreeSet<String>();
+  for (int ii = 0; ii < grownData.size(); ++ii) {
+    String id = grownData.getString(ii);
+    if (ids.contains(id)) grownPlants.add(id);
+  }
+
+  farmData = saveData.getJSONArray("farm");
   farmGame = new FarmGame(farmData);
 }
 
@@ -220,10 +291,16 @@ void loadSave() {
  */
 void resetSave() {
   JSONObject saveData = loadJSONObject("saveDefault.JSON");
+  JSONArray unlockedSeeds = saveData.getJSONArray("seeds");
+  JSONArray grownData = saveData.getJSONArray("grown");
   JSONArray farmData = saveData.getJSONArray("farm");
 
-  activeSeed = 0;
+  loadSeeds(unlockedSeeds);
+  grownPlants = new TreeSet<String>(fromJSONArray(grownData));
+
   hasWateringCan = false;
+  
+  pediaPanel.setVisible(false);
 
   farmGame.resetFarm(farmData);
 }
@@ -233,7 +310,43 @@ void resetSave() {
  */
 void saveGame() {
   JSONObject saveData = new JSONObject();
+  JSONArray unlockedSeeds = new JSONArray();
+  JSONArray grownData = fromCollection(grownPlants);
+
+  int index = 0;
+  for (Growable g : availableSeeds) {
+    unlockedSeeds.setString(index++, g.itemId);
+  }
+  saveData.setJSONArray("seeds", unlockedSeeds);
+  saveData.setJSONArray("grown", grownData);
   saveData.setJSONArray("farm", farmGame.asJSONArray());
 
   saveJSONObject(saveData, "save.JSON");
+}
+
+void loadSeeds(JSONArray unlockedSeeds) {
+  availableSeeds = new ArrayList<Growable>();
+  activeSeed = 0;
+
+  for (int ii = 0; ii < unlockedSeeds.size(); ++ii) {
+    String id = unlockedSeeds.getString(ii);
+    
+    Growable item = itemDictionary.get(id);
+    if (null != item) availableSeeds.add(item);
+  }
+}
+
+
+JSONArray fromCollection(Collection<String> cc) {
+  JSONArray result = new JSONArray();
+  for (String item : cc) result.setString(result.size(), item);
+  return result;
+}
+
+Collection<String> fromJSONArray(JSONArray arr) {
+  SortedSet cc = new TreeSet<String>();
+  for (int ii = 0; ii < arr.size(); ++ii) {
+    cc.add(arr.getString(ii));
+  }
+  return cc;
 }

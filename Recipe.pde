@@ -4,14 +4,17 @@
 class Recipe {
   public final String PRODUCT;
   
-  private HashSet<String> ingredients;
+  private SortedSet<String> ingredients;
 
   /**
    * Create a crafting recipe.
+   * 
+   * @param id itemId of the product
+   * @param _ingredients as JSON
    */
-  private Recipe(String id, ArrayList<String> _ingredients) {
+  private Recipe(String id, JSONArray _ingredients) {
     this.PRODUCT = id;
-    this.ingredients = new HashSet<String>(_ingredients);
+    this.ingredients = new TreeSet(fromJSONArray(_ingredients));
   }
 
   /**
@@ -23,6 +26,14 @@ class Recipe {
    */
   boolean needsIngredient(String id) {
     return this.ingredients.contains(id);
+  }
+
+  /**
+   * { @return recipe ingredients... }
+   */
+  List<String> getIngredients() {
+    List<String> _sortedIngredients = new ArrayList(this.ingredients);
+    return _sortedIngredients;
   }
 }
 
@@ -36,15 +47,7 @@ void loadRecipes(JSONObject recipesData) {
     if (recipesData.isNull(id)) continue;
     JSONArray recipeData = recipesData.getJSONArray(id);
 
-    ArrayList<String> ingredients = new ArrayList<String>();
-
-    for (int ii = 0; ii < recipeData.size(); ++ii) {
-      ingredients.add(
-        recipeData.getString(ii)
-      );
-    }
-
-    Recipe recipe = new Recipe(id, ingredients);
+    Recipe recipe = new Recipe(id, recipeData);
 
     recipeBook.put(id, recipe);
   }
@@ -57,14 +60,19 @@ void loadRecipes(JSONObject recipesData) {
  * 
  * @return recipes that contain all ingredients
  */
-HashSet<String> findRecipes(String... _ingredients) {
-  HashSet<String> recipes = new HashSet<String>();
+SortedSet<String> findRecipes(String... _ingredients) {
+  List<String> ingredients = new ArrayList<String>(Arrays.asList(_ingredients));
+  Collections.sort(ingredients);
+
+  SortedSet<String> recipes = new TreeSet<String>();
   
   for (Recipe recipe : recipeBook.values()) {
-    boolean containsAll = true;
-    
-    for (int index = 0; index < _ingredients.length && containsAll; ++index)
-      if (!recipe.needsIngredient(_ingredients[index]))
+    List<String> recipeIngredients = new ArrayList(recipe.getIngredients());
+
+    boolean containsAll = (ingredients.size() == recipeIngredients.size());
+
+    for (int index = 0; index < ingredients.size() && containsAll; ++index)
+      if (!recipeIngredients.get(index).equals(ingredients.get(index)))
         containsAll = false;
     
     if (containsAll) recipes.add(recipe.PRODUCT);

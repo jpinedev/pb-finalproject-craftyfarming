@@ -1,45 +1,33 @@
 # Crafty Farmer
 ## Project Description
-Plant fruits, vegetables, and ...meat?
-
-How you grow your plants matters; take steps to process the food before it finishes growing. Eg. when growing wheat, if you crush it, it will turn into flower.
-
+Plant seeds, water, and harvest plants.
 Combine two plants by dragging one on the other.
 
-Choose to harvest the item in it's intermediate state or continue crafting.
+Unlock access to a new seeds by successfully crafting, growing, and harvesting plants.
 
-Unlock access to new seeds (ingredient checkpoints), to make longer recipies easier.
+Keep an encyclopedia of all seed/plant types. Harvest each plant to record plant information.
 
-Goal: Grow all food items in the game.
-Keep an encyclopedia of all successfully grown foods (shows progress until completion)
+Goal: Successfully harvest all food items in the game.
 
 
 ## How To Play:
-> #### Alert:
-> Some controls and features listed below are not yet implemented.
-
 #### Controls:
-- Select active tool using mouse
+- Click on Soil to Till
 - Select seed to plant with left and right arrow keys
-- Click on a tile to interact (see *[Result of Interacting with Tiles](#result-of-interacting-with-tiles)* for details)
-- Click and Drag plants onto each other to craft
+  - Click on Tilled Soil to plant selected seed
+- Select watering can using mouse
+  - Click/drag to water plants while watering can is equipped
+  - Click any UI below farm to unequip watering can
+- Click and Drag plant onto Tilled Soil to transplant (move plant)
+- Click and Drag plant onto Compost button to remove a plant
+- Click and Drag plants onto each other to combine/craft
+- Click on fully grown plant to harvest
 - Enter/Return - advance time by one day
 - Backspace/Delete - reset farm (must advance time to apply reset)
+- Click on the active seed UI to open Plantpedia (plant encyclopedia)
 
-> ###### Tile States:
-> - Soil (light brown)
-> - Tilled (light brown with circle of dark brown)
-> - Planted (light brown with growing plant over it)
-> - Watered (dark brown with growing plant over it)
-
-> ###### Result of Interacting with Tiles:
-> - Soil -> Tilled
-> - Tilled + Growable -> Planted
-> - Planted + Watering Can -> Watered
-> - Planted (ready to harvest) -> Soil
-
-#### Disclaimer:
-*Plants must be watered overnight to grow/delay spoiling until ripe.*
+> #### Disclaimer:
+> *Plants must be watered overnight to grow/delay spoiling until ripe.*
 
 
 ## Roadmap:
@@ -47,17 +35,18 @@ Keep an encyclopedia of all successfully grown foods (shows progress until compl
 - [x] Choose what growable to Plant
 - [x] Craft new growables by dragging one plant onto another
 - [x] Ability to compost any Plants
-- [ ] Harvest Plants
+- [x] Harvest Plants
 #### medium priority
-- [ ] Unlock access new seeds
+- [x] Unlock access new seeds (upon successful harvest of new item)
 - [x] Tool selecting (watering can; compost)
-- [ ] Keep an encyclopedia (with UI) of all successfully grown Growables (shows progress until completion)
+- [x] Keep an encyclopedia (with UI) of all successfully grown Growables (shows progress until completion)
 #### low priority
-- [ ] Plants have grace period before starting to spoil
-- [ ] Plant visuals overhaul
+- [x] Plants have grace period before starting to spoil
+- [x] Transplant into Tilled Soil
 #### *extras*
+- [x] Harvest crafted plant to learn/record plant stats
+- [x] End game when user has harvested every type of plant
 - [ ] Title Screen
 - [ ] Multi-plant recipes
-- [x] Transplant into Tilled Soil
 ###### *daydreaming...*
-- [ ] analyze crafted seeds to learn/record what you created
+- [ ] Plant visuals overhaul

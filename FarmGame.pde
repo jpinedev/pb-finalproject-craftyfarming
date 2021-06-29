@@ -96,7 +96,7 @@ class FarmGame {
       final int ii = mapMouseXToGrid();
       final int jj = mapMouseYToGrid();
 
-      if (jj < GRID_SIZE) {
+      if (ii >= 0 && ii < GRID_SIZE && jj >= 0 && jj < GRID_SIZE) {
         if (this.farm[jj][ii].hasPlant()) {
           this.farm[jj][ii].waterPlant();
 
@@ -126,7 +126,7 @@ class FarmGame {
         this.farm[jj][ii].setPlant(this.draggedItem);
       } else {
         // Plant already exists in drop location
-        HashSet<String> recipes = this.farm[jj][ii].getSharedRecipes(this.draggedItem.itemId);
+        SortedSet<String> recipes = this.farm[jj][ii].getSharedRecipes(this.draggedItem.itemId);
         if (recipes.size() == 0) this.cancelDrag();
         else {
           String growableKey = recipes.iterator().next();
@@ -148,7 +148,8 @@ class FarmGame {
       }
     } else if (!lmbWasDown) {
       // Clicked on tile
-      this.farm[jj][ii].nextState(availableSeeds.get(activeSeed), hasWateringCan);
+      if (!hasWateringCan && this.farm[jj][ii].hasRipePlant()) harvestPlant(this.farm[jj][ii].transplant());
+      else this.farm[jj][ii].nextState(availableSeeds.get(activeSeed), hasWateringCan);
     }
   }
 

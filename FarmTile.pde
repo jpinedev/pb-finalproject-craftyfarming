@@ -158,8 +158,8 @@ class FarmTile {
    * 
    * @param itemId item to be indexed
    */
-  public HashSet<String> getSharedRecipes(String itemId) {
-    if (!this.hasPlant()) return new HashSet<String>();
+  public SortedSet<String> getSharedRecipes(String itemId) {
+    if (!this.hasPlant()) return new TreeSet<String>();
     return findRecipes(this.item.itemId, itemId);
   }
   

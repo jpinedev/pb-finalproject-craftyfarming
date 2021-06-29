@@ -1,4 +1,13 @@
 {
+  "seeds": [
+    "cabbage",
+    "carrots",
+    "lettuce",
+    "tomato"
+  ],
+  "grown": [
+
+  ],
   "farm": [
     null,
     null,
